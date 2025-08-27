@@ -19,6 +19,7 @@ export default {
         text: '#717171',
         background: '#F4F2FF', 
         white: '#FFFFFF',
+        primaryDisabled: '#B2A8FF',
         error: '#D32F2F',
       },
       borderRadius: {
