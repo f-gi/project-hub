@@ -20,7 +20,7 @@ const route = useRoute();
           class="w-[72px] h-[72px] object-cover"
         />
         <h1
-          class="text-white font-encode text-[18px] font-normal leading-tight max-w-[109px]"
+          class="text-white text-base leading-100p max-w-[109px]"
         >
           Gerenciador de Projetos
         </h1>
