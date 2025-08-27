@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import Header from "@/components/ui/Header.vue";
 </script>
 
 <template>
-  <div>
-    <div class="bg-red-500 text-white p-4 rounded">
-      tail on
-    </div>
-    <router-view />
+  <div class="bg-background min-h-screen">
+    <Header />
+    <main class="pt-header px-6">
+      <RouterView />
+    </main>
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
