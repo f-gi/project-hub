@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CoverPlaceholder from "@/assets/cover-placeholder.svg";
 import Button from "@/components/ui/Button.vue";
+import { formatDatePt } from "@/utils/date";
 import {
     IconCalendar,
     IconCalendarCheck,
@@ -31,33 +32,8 @@ const emit = defineEmits<{
 }>();
 
 const isMenuOpen = ref(false);
-function toggleMenu() {
-  isMenuOpen.value = !isMenuOpen.value;
-}
-function closeMenu() {
-  isMenuOpen.value = false;
-}
-
-function parseDateString(value: string): Date | null {
-  if (!value) return null;
-  if (value.includes("/")) {
-    const [dd, mm, yyyy] = value.split("/");
-    const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
-    return isNaN(d.getTime()) ? null : d;
-  }
-  const d = new Date(value); // tenta ISO
-  return isNaN(d.getTime()) ? null : d;
-}
-
-function formatDatePt(value: string): string {
-  const d = parseDateString(value);
-  if (!d) return value;
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(d);
-}
+const toggleMenu = () => (isMenuOpen.value = !isMenuOpen.value);
+const closeMenu = () => (isMenuOpen.value = false);
 </script>
 
 <template>
