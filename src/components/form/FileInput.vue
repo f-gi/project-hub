@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import Button from "@/components/ui/Button.vue";
 import { IconTrash, IconUpload } from "@tabler/icons-vue";
-import { onBeforeUnmount, ref } from "vue";
+import { ref } from "vue";
 
-type Emits = {
-  (e: "update:modelValue", value: string | null): void;
-};
+type Emits = { (e: "update:modelValue", value: string | null): void };
 
 withDefaults(
   defineProps<{
@@ -14,16 +12,12 @@ withDefaults(
     accept?: string;
     error?: string;
   }>(),
-  {
-    accept: ".jpg,.jpeg,.png",
-    error: "",
-  }
+  { accept: ".jpg,.jpeg,.png", error: "" }
 );
 
 const emit = defineEmits<Emits>();
 
 const inputEl = ref<HTMLInputElement | null>(null);
-let lastObjectUrl: string | null = null;
 
 function openDialog() {
   inputEl.value?.click();
@@ -33,20 +27,14 @@ function onChange(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0];
   if (!file || !/^image\/(png|jpe?g)$/i.test(file.type)) return;
 
-  if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
-  lastObjectUrl = URL.createObjectURL(file);
-  emit("update:modelValue", lastObjectUrl);
+  const reader = new FileReader();
+  reader.onload = () => emit("update:modelValue", reader.result as string); // DataURL
+  reader.readAsDataURL(file);
 }
 
 function removeFile() {
-  if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
-  lastObjectUrl = null;
   emit("update:modelValue", null);
 }
-
-onBeforeUnmount(() => {
-  if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
-});
 </script>
 
 <template>

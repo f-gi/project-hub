@@ -3,13 +3,38 @@ import DateInput from "@/components/form/DateInput.vue";
 import FileInput from "@/components/form/FileInput.vue";
 import TextField from "@/components/form/TextField.vue";
 import Button from "@/components/ui/Button.vue";
-import { computed, reactive, ref, watch } from "vue";
+import { useProjectStore } from "@/stores/project";
+import type { Project } from "@/types/project";
+import { computed, onMounted, reactive, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+const route = useRoute();
+const router = useRouter();
+const store = useProjectStore();
+
+const isEdit = computed(() => Boolean(route.params.id));
+const editingId = computed(() => (route.params.id as string) || null);
 
 const projectName = ref("");
 const clientName = ref("");
-const startDate = ref(""); 
+const startDate = ref("");
 const endDate = ref("");
 const coverUrl = ref<string | null>(null);
+
+onMounted(() => {
+  if (isEdit.value && editingId.value) {
+    const existing = store.getById(editingId.value);
+    if (!existing) {
+      router.replace({ name: "Home" });
+      return;
+    }
+    projectName.value = existing.name;
+    clientName.value = existing.client;
+    startDate.value = existing.startDate;
+    endDate.value = existing.endDate;
+    coverUrl.value = existing.image ?? null;
+  }
+});
 
 const errors = reactive<Record<"name" | "client" | "start" | "end", string>>({
   name: "",
@@ -35,11 +60,12 @@ function enforceDateOrderConstraint() {
   }
   if (startDate.value && new Date(endDate.value) < new Date(startDate.value)) {
     errors.end = "A data final deve ser posterior à data de início";
-  } else if (errors.end === "A data final deve ser posterior à data de início") {
+  } else if (
+    errors.end === "A data final deve ser posterior à data de início"
+  ) {
     errors.end = "";
   }
 }
-
 watch([startDate, endDate], enforceDateOrderConstraint);
 
 function validateFieldOnBlur(e: Event) {
@@ -64,7 +90,10 @@ function validateFieldOnBlur(e: Event) {
       errors.end = ERROR_TEXT.end;
       return;
     }
-    if (startDate.value && new Date(endDate.value) < new Date(startDate.value)) {
+    if (
+      startDate.value &&
+      new Date(endDate.value) < new Date(startDate.value)
+    ) {
       errors.end = "A data final deve ser posterior à data de início";
       return;
     }
@@ -87,10 +116,8 @@ const isFormValid = computed(() => {
     (!startDate.value ||
       !endDate.value ||
       new Date(endDate.value) >= new Date(startDate.value));
-
   const noErrors =
     !errors.name && !errors.client && !errors.start && !errors.end;
-
   return rulesOk && noErrors;
 });
 
@@ -102,15 +129,37 @@ function submitForm(e: Event) {
   errors.start = startDate.value ? "" : ERROR_TEXT.start;
   if (!endDate.value) errors.end = ERROR_TEXT.end;
   enforceDateOrderConstraint();
-
   if (!isFormValid.value) return;
+
+  if (isEdit.value && editingId.value) {
+    store.update(editingId.value, {
+      name: projectName.value.trim(),
+      client: clientName.value.trim(),
+      startDate: startDate.value,
+      endDate: endDate.value,
+      image: coverUrl.value ?? undefined,
+    });
+  } else {
+    const newProject: Project = {
+      id: crypto.randomUUID(),
+      name: projectName.value.trim(),
+      client: clientName.value.trim(),
+      startDate: startDate.value,
+      endDate: endDate.value,
+      favorite: false,
+      image: coverUrl.value ?? undefined,
+    };
+    store.add(newProject);
+  }
+
+  router.push({ name: "Home" });
 }
 </script>
 
 <template>
   <section class="max-w-screen-xl mx-auto px-6 py-10">
     <h1 class="text-heading text-xl font-semibold leading-100p mb-6">
-      Novo projeto
+      {{ isEdit ? "Editar projeto" : "Novo projeto" }}
     </h1>
 
     <form @submit="submitForm" class="space-y-6" novalidate>

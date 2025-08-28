@@ -22,6 +22,7 @@ export default {
         primaryDisabled: '#B2A8FF',
         error: '#C40000',
         errorHeading: '#9F0000',
+        yellow: '#FFB23D',
       },
       borderRadius: {
         sm: '8px',
