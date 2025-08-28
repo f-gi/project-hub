@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router";
+import { RouterLink } from "vue-router";
+
 withDefaults(
   defineProps<{
+    to?: RouteLocationRaw;
     outline?: boolean;
     disabled?: boolean;
     type?: "button" | "submit" | "reset";
@@ -17,9 +21,11 @@ defineEmits<{ (e: "click", ev: MouseEvent): void }>();
 </script>
 
 <template>
-  <button
-    :type="type"
-    :disabled="disabled"
+  <component
+    :is="to ? RouterLink : 'button'"
+    :to="!disabled ? to : undefined"
+    :type="to ? undefined : type"
+    :disabled="!to && disabled"
     :aria-label="ariaLabel"
     class="inline-flex items-center justify-center gap-2 font-medium px-5 py-[15px] rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary disabled:cursor-not-allowed"
     :class="[
@@ -31,9 +37,9 @@ defineEmits<{ (e: "click", ev: MouseEvent): void }>();
           ? 'border-primaryDisabled text-primaryDisabled'
           : 'bg-primaryDisabled'),
     ]"
-    @click="$emit('click', $event)"
+    @click="!to && $emit('click', $event)"
   >
     <slot name="icon" />
     <slot />
-  </button>
+  </component>
 </template>
