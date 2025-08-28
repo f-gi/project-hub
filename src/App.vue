@@ -5,10 +5,10 @@ import Header from "@/components/ui/Header.vue";
 <template>
   <div class="bg-background min-h-screen">
     <Header />
-    <main class="pt-header px-6">
+    <main
+      class="pt-header h-[calc(100vh)] overflow-y-auto bg-background overscroll-contain scroll-pb-10"
+    >
       <RouterView />
     </main>
   </div>
 </template>
-
-<style scoped></style>
