@@ -20,7 +20,8 @@ export default {
         background: '#F4F2FF', 
         white: '#FFFFFF',
         primaryDisabled: '#B2A8FF',
-        error: '#D32F2F',
+        error: '#C40000',
+        errorHeading: '#9F0000',
       },
       borderRadius: {
         sm: '8px',
