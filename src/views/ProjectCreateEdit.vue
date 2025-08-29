@@ -5,6 +5,7 @@ import TextField from "@/components/form/TextField.vue";
 import Button from "@/components/ui/Button.vue";
 import { useProjectStore } from "@/stores/project";
 import type { Project } from "@/types/project";
+import { IconArrowLeft } from "@tabler/icons-vue";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
@@ -157,65 +158,78 @@ function submitForm(e: Event) {
 </script>
 
 <template>
-  <section class="max-w-screen-xl mx-auto px-6 py-10">
-    <h1 class="text-heading text-xl font-semibold leading-100p mb-6">
+  <section class="px-16 py-20">
+    <button
+      type="button"
+      class="inline-flex items-center gap-2 text-primary hover:underline mb-2"
+      @click="router.back()"
+    >
+      <IconArrowLeft class="w-5 h-5" aria-hidden="true" />
+      Voltar
+    </button>
+
+    <h1 class="text-heading text-xl font-semibold leading-100p mb-4">
       {{ isEdit ? "Editar projeto" : "Novo projeto" }}
     </h1>
 
-    <form @submit="submitForm" class="space-y-6" novalidate>
-      <TextField
-        id="name"
-        label="Nome do projeto"
-        required
-        v-model="projectName"
-        :error="errors.name"
-        @blur="validateFieldOnBlur"
-        @input="clearFieldErrorOnInput"
-      />
+    <div class="w-full rounded-lg border border-[#DCDCDC] p-6 md:p-8">
+      <div class="max-w-[704px] mx-auto">
+        <form @submit="submitForm" class="space-y-6" novalidate>
+          <TextField
+            id="name"
+            label="Nome do projeto"
+            required
+            v-model="projectName"
+            :error="errors.name"
+            @blur="validateFieldOnBlur"
+            @input="clearFieldErrorOnInput"
+          />
 
-      <TextField
-        id="client"
-        label="Cliente"
-        required
-        v-model="clientName"
-        :error="errors.client"
-        @blur="validateFieldOnBlur"
-        @input="clearFieldErrorOnInput"
-      />
+          <TextField
+            id="client"
+            label="Cliente"
+            required
+            v-model="clientName"
+            :error="errors.client"
+            @blur="validateFieldOnBlur"
+            @input="clearFieldErrorOnInput"
+          />
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <DateInput
-          id="start"
-          label="Data de Início"
-          required
-          v-model="startDate"
-          :error="errors.start"
-          @blur="validateFieldOnBlur"
-          @input="clearFieldErrorOnInput"
-        />
-        <DateInput
-          id="end"
-          label="Data Final"
-          required
-          v-model="endDate"
-          :min="startDate || undefined"
-          :error="errors.end"
-          @blur="validateFieldOnBlur"
-          @input="clearFieldErrorOnInput"
-        />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <DateInput
+              id="start"
+              label="Data de Início"
+              required
+              v-model="startDate"
+              :error="errors.start"
+              @blur="validateFieldOnBlur"
+              @input="clearFieldErrorOnInput"
+            />
+            <DateInput
+              id="end"
+              label="Data Final"
+              required
+              v-model="endDate"
+              :min="startDate || undefined"
+              :error="errors.end"
+              @blur="validateFieldOnBlur"
+              @input="clearFieldErrorOnInput"
+            />
+          </div>
+
+          <FileInput label="Capa do projeto" v-model="coverUrl" />
+
+          <div class="pt-2">
+            <Button
+              type="submit"
+              :disabled="!isFormValid"
+              class="w-full text-md leading-tight"
+            >
+              Salvar projeto
+            </Button>
+          </div>
+        </form>
       </div>
-
-      <FileInput label="Capa do projeto" v-model="coverUrl" />
-
-      <div class="pt-2">
-        <Button
-          type="submit"
-          :disabled="!isFormValid"
-          class="w-full text-md leading-tight"
-        >
-          Salvar projeto
-        </Button>
-      </div>
-    </form>
+    </div>
   </section>
 </template>
