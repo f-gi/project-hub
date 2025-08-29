@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Logo from "@/assets/logo.svg";
 import ProjectSearch from "@/components/ui/ProjectSearch.vue";
 import { useRoute } from "vue-router";
 
@@ -17,7 +16,7 @@ const route = useRoute();
         class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2"
       >
         <img
-          :src="Logo"
+          src="/logo.svg"
           alt="Logo do sistema Gerenciador de Projetos"
           class="w-[72px] h-[72px] object-cover"
         />
