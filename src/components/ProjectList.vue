@@ -2,51 +2,72 @@
 import ProjectCard from "@/components/ui/ProjectCard.vue";
 import ProjectListToolbar from "@/components/ui/ProjectListToolbar.vue";
 import { useProjectStore } from "@/stores/project";
+import { useSearchStore } from "@/stores/search";
 import type { Project } from "@/types/project";
+import { IconArrowLeft } from "@tabler/icons-vue";
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 
+import { dateToTimestamp } from "@/utils/date";
+import { normalizeText } from "@/utils/string";
+
 defineProps<{ projects: Project[] }>();
 
-const store = useProjectStore();
+const projectStore = useProjectStore();
+const searchStore = useSearchStore();
 const router = useRouter();
 
 const onlyFavorites = ref(false);
 const sort = ref<"alphabetical" | "start_desc" | "end_asc">("alphabetical");
 
-function parseDate(value: string): number {
-  if (!value) return Number.NaN;
-  if (value.includes("/")) {
-    const [dd, mm, yyyy] = value.split("/");
-    return new Date(Number(yyyy), Number(mm) - 1, Number(dd)).getTime();
+const MIN_SEARCH_CHARS = 3;
+const searchQuery = computed(() => searchStore.query.trim());
+const hasSearchQuery = computed(
+  () => searchQuery.value.length >= MIN_SEARCH_CHARS
+);
+
+const totalProjectsCount = computed(() => projectStore.projects.length);
+
+const visibleProjects = computed(() => {
+  let list = projectStore.projects.slice();
+
+  if (hasSearchQuery.value) {
+    const q = normalizeText(searchQuery.value);
+    list = list.filter((p) => normalizeText(p.name).includes(q));
   }
-  return new Date(value).getTime();
-}
 
-const totalCount = computed(() => store.projects.length);
-
-const displayedProjects = computed(() => {
-  let arr = store.projects.slice();
-
-  if (onlyFavorites.value) {
-    arr = arr.filter((p) => p.favorite);
+  if (!hasSearchQuery.value && onlyFavorites.value) {
+    list = list.filter((p) => p.favorite);
   }
 
   if (sort.value === "alphabetical") {
-    arr.sort((a, b) => a.name.localeCompare(b.name));
+    list.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
   } else if (sort.value === "start_desc") {
-    arr.sort((a, b) => parseDate(b.startDate) - parseDate(a.startDate));
+    list.sort(
+      (a, b) => dateToTimestamp(b.startDate) - dateToTimestamp(a.startDate)
+    );
   } else {
-    arr.sort((a, b) => parseDate(a.endDate) - parseDate(b.endDate));
+    list.sort(
+      (a, b) => dateToTimestamp(a.endDate) - dateToTimestamp(b.endDate)
+    );
   }
 
-  return arr;
+  return list;
 });
+
+function openEdit(projectId: string) {
+  router.push({ name: "ProjectEdit", params: { id: projectId } });
+}
 
 function confirmAndRemove(projectId: string) {
   if (confirm("Deseja remover este projeto?")) {
-    store.remove(projectId);
+    projectStore.remove(projectId);
   }
+}
+
+function backFromSearch() {
+  searchStore.setQuery("");
+  searchStore.close();
 }
 </script>
 
@@ -56,6 +77,7 @@ function confirmAndRemove(projectId: string) {
     aria-labelledby="projects-heading"
   >
     <header
+      v-if="!hasSearchQuery"
       class="sticky top-0 z-40 bg-background/90 supports-[backdrop-filter]:bg-background/60 backdrop-blur px-6 py-3 rounded-md"
     >
       <div
@@ -67,7 +89,7 @@ function confirmAndRemove(projectId: string) {
         >
           Projetos
           <span class="inline-block text-base leading-100p text-primary">
-            ({{ totalCount }})
+            ({{ totalProjectsCount }})
           </span>
         </h2>
 
@@ -82,10 +104,30 @@ function confirmAndRemove(projectId: string) {
       </div>
     </header>
 
+    <header
+      v-else
+      class="sticky top-0 z-40 bg-background/90 supports-[backdrop-filter]:bg-background/60 backdrop-blur px-6 py-4 rounded-md"
+    >
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 text-primary hover:underline mb-3"
+        @click="backFromSearch"
+      >
+        <IconArrowLeft class="w-5 h-5" aria-hidden="true" />
+        Voltar
+      </button>
+
+      <h2 class="text-heading text-lg font-semibold">Resultado da busca</h2>
+    </header>
+
+    <p class="sr-only" aria-live="polite">
+      {{ visibleProjects.length }} projetos visíveis na lista.
+    </p>
+
     <ul
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center"
     >
-      <li v-for="p in displayedProjects" :key="p.id">
+      <li v-for="p in visibleProjects" :key="p.id">
         <ProjectCard
           :title="p.name"
           :client="p.client"
@@ -93,8 +135,8 @@ function confirmAndRemove(projectId: string) {
           :endDate="p.endDate"
           :cover="p.image"
           :isFavorite="p.favorite"
-          @toggle-favorite="store.toggleFavorite(p.id)"
-          @edit="router.push({ name: 'ProjectEdit', params: { id: p.id } })"
+          @toggle-favorite="projectStore.toggleFavorite(p.id)"
+          @edit="openEdit(p.id)"
           @delete="confirmAndRemove(p.id)"
         />
       </li>
