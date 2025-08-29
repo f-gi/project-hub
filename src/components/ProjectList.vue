@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import ProjectCard from "@/components/ui/ProjectCard.vue";
 import ProjectListToolbar from "@/components/ui/ProjectListToolbar.vue";
 import { useProjectStore } from "@/stores/project";
 import { useSearchStore } from "@/stores/search";
 import type { Project } from "@/types/project";
+import { dateToTimestamp } from "@/utils/date";
+import { normalizeText } from "@/utils/string";
 import { IconArrowLeft } from "@tabler/icons-vue";
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
-
-import { dateToTimestamp } from "@/utils/date";
-import { normalizeText } from "@/utils/string";
 
 defineProps<{ projects: Project[] }>();
 
@@ -59,15 +59,23 @@ function openEdit(projectId: string) {
   router.push({ name: "ProjectEdit", params: { id: projectId } });
 }
 
-function confirmAndRemove(projectId: string) {
-  if (confirm("Deseja remover este projeto?")) {
-    projectStore.remove(projectId);
-  }
-}
-
 function backFromSearch() {
   searchStore.setQuery("");
   searchStore.close();
+}
+
+const confirmOpen = ref(false);
+const projectToRemove = ref<Project | null>(null);
+
+function askRemove(project: Project) {
+  projectToRemove.value = project;
+  confirmOpen.value = true;
+}
+
+function confirmRemove() {
+  const id = projectToRemove.value?.id;
+  if (id) projectStore.remove(id);
+  projectToRemove.value = null;
 }
 </script>
 
@@ -137,9 +145,15 @@ function backFromSearch() {
           :isFavorite="p.favorite"
           @toggle-favorite="projectStore.toggleFavorite(p.id)"
           @edit="openEdit(p.id)"
-          @delete="confirmAndRemove(p.id)"
+          @delete="askRemove(p)"
         />
       </li>
     </ul>
+
+    <ConfirmDialog
+      v-model="confirmOpen"
+      :projectName="projectToRemove?.name || ''"
+      @confirm="confirmRemove"
+    />
   </section>
 </template>
