@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 
 const STORAGE_KEY = "search_history";
-const MAX_ITEMS = 10;
+const MAX_ITEMS = 5;
 
 function loadHistory(): string[] {
   try {
