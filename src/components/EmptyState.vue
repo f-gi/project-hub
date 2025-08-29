@@ -1,8 +1,8 @@
 <template>
   <section
-    class="min-h-[calc(100vh-80px)] w-full max-w-5xl mx-auto bg-white rounded-md shadow-sm grid place-items-center"
+    class="min-h-[calc(100vh-80px)] bg-white rounded-md shadow-sm grid place-items-center my-20 mx-10"
   >
-    <div class="text-center flex flex-col items-center gap-4 px-12 py-16">
+    <div class="text-center flex flex-col items-center gap-6 px-12 py-16">
       <h2 class="text-heading text-xl font-semibold leading-100p">
         Nenhum projeto
       </h2>
