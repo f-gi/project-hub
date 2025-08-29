@@ -1,9 +1,14 @@
+<script setup lang="ts">
+import EmptyState from "@/components/EmptyState.vue";
+import ProjectList from "@/components/ProjectList.vue";
+import { useProjectStore } from "@/stores/project";
+
+const projectStore = useProjectStore();
+</script>
+
 <template>
-    <div class="text-2xl font-semibold text-blue-600 p-4">
-      Página Home
-    </div>
-  </template>
-  
-  <script setup lang="ts">
-  </script>
-  
+  <div>
+    <EmptyState v-if="!projectStore.hasProjects" />
+    <ProjectList v-else :projects="projectStore.projects" />
+  </div>
+</template>

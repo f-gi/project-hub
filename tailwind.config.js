@@ -5,7 +5,51 @@ export default {
     './src/**/*.{vue,js,ts,jsx,tsx}',
   ],
   theme: {
-    extend: {},
+    fontFamily: {
+      sans: ['"Encode Sans Semi Expanded"', 'sans-serif'],
+    },
+    extend: {
+      fontFamily: {
+        encode: ['"Encode Sans Semi Expanded"', 'sans-serif'],
+      },
+      colors: {
+        primary: '#695CCD',
+        secondary: '#1C1930',
+        heading: '#1F1283',
+        text: '#717171',
+        background: '#F4F2FF', 
+        white: '#FFFFFF',
+        primaryDisabled: '#B2A8FF',
+        error: '#C40000',
+        errorHeading: '#9F0000',
+        yellow: '#FFB23D',
+      },
+      borderRadius: {
+        sm: '8px',
+        md: '16px',
+        lg: '20px',
+        xl: '26px',
+        full: '9999px',
+      },
+      fontSize: {
+        xs: '14px',
+        sm: '16px',
+        base: '18px',
+        md: '20px',
+        lg: '22px',
+        xl: '24px',
+      },
+      lineHeight: {
+        tight: '22px',
+        '100p': '100%',
+      },
+      boxShadow: {
+        header: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+      },
+      spacing: {
+        header: '80px',
+      },
+    },
   },
   plugins: [],
 }
